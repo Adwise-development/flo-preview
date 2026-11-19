@@ -233,15 +233,19 @@ body.flo-legal-canvas {
 	margin-block: 3rem 0;
 }
 
-/* Tabela (Cookie Policy, brak w PSB): bez min-width, łamanie w komórkach;
-   overflow-x z core zostaje tylko jako bezpiecznik. */
+/* Tabela (Cookie Policy, brak w PSB): 4 kolumny nie mieszczą się w 288 px
+   (kolumna Purpose miała 9 znaków w wierszu przy 320–390), więc tabela ma
+   min-width 30rem i poniżej tego przewija się w swojej ramie (overflow-x z
+   core, skill responsive §13.1 wariant 1). Od ~560 px bez przewijania. */
 :is(.flo-legal__body, .flo-legal-canvas > .is-root-container) .wp-block-table {
 	margin-block: 1.5rem;
 	max-width: 100%;
+	overscroll-behavior-x: contain;
 }
 
 :is(.flo-legal, .flo-legal-canvas) .wp-block-table table {
 	width: 100%;
+	min-width: 30rem;
 	border-collapse: collapse;
 }
 
@@ -256,7 +260,17 @@ body.flo-legal-canvas {
 	text-align: left;
 	vertical-align: top;
 	hyphens: auto;
-	overflow-wrap: anywhere;
+
+	/* break-word, nie anywhere: anywhere zeruje min-content i kolumna „Name”
+	   schodziła do 60 px (4 znaki w wierszu przy 320). Gdy kolumny się nie
+	   mieszczą, tabela przewija się w swojej ramie (overflow-x z core). */
+	overflow-wrap: break-word;
+}
+
+/* Nazwy cookies (pierwsza kolumna) bez dzielenia: hyphens: auto ścinało
+   min-content kolumny do ~50 px („ses-sion-Stor-age”). */
+:is(.flo-legal, .flo-legal-canvas) .wp-block-table td:first-child {
+	hyphens: manual;
 }
 
 /* th = etykieta (Space Mono, wielkie litery). */
