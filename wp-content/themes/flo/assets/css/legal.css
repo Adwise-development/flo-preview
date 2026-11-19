@@ -1,0 +1,362 @@
+/* Strony prawne: wspólny szablon podstron tekstowych ze stopki (Kamila,
+   AC 19.11, PSB `shipping and returns_szablon.psb`). Front: tylko szablon
+   `legal`; kanwa edytora: add_editor_style (`.flo-legal-canvas` na body
+   iframe w trybie post-only, assets/js/legal-editor.js).
+
+   Projekt to zrzut przeglądarki 1:1 (1920 px okna, 1905 bez paska
+   przewijania), więc wartości z PSB to piksele CSS bez skalowania:
+   kolumna 678 px na środku, etykieta Space Mono 12,8 px wielkimi
+   literami (czarna), „Effective Date” 16/19, H1 31,7/38, H2 23,4/28,1,
+   akapit 16/19, tekst #565655 na białym, ramka tekstu 678,4 px (warstwy
+   PSB, layers.txt). Odstępy zmierzone na PSB (pomiar Playwright, raport
+   19.11); pełne wartości od 1440 px, niżej clamp (cqi), na 390 ok. 60–70%.
+   Kolejność z PSB: etykieta, data, H1, treść. Data jest pierwszym akapitem
+   treści (styl „Legal: date”), więc `__body` ma display: contents,
+   a `order` przenosi datę nad H1 (DOM: H1 przed datą, czytnik ekranu
+   czyta tytuł, potem datę). Etykieta = drugi post-title, ukryty przed
+   czytnikiem (inc/legal.php), żeby tytuł nie był czytany dwa razy.
+   Odstępstwa od PSB: linki podkreślone (WCAG 1.4.1; w PSB brak linków),
+   ramka tekstu zastępczego (noindex, inc/legal.php), tabela Cookie Policy
+   i lista (brak w PSB). Pasek nawigacji zostaje ciemny (blok navbar). */
+
+:is(.flo-legal, .flo-legal-canvas) {
+	--flo-legal-ink: #565655; /* PSB: tekst i nagłówki */
+	--flo-legal-rule: #dcdcdc;
+	--flo-legal-pad: clamp(1.25rem, 5vw, 3.5rem);
+	--flo-legal-col: 42.4rem; /* PSB: ramka tekstu 678,4 px (x 602) */
+	--flo-legal-lh: 1.1875; /* PSB: 16/19 */
+	--flo-legal-gap: 1.1875rem; /* PSB: pusty wiersz między akapitami */
+
+	container-type: inline-size;
+	box-sizing: border-box;
+	max-width: 100%;
+	background: var(--wp--preset--color--white);
+	color: var(--flo-legal-ink);
+	font-family: var(--wp--preset--font-family--suisse);
+}
+
+:is(.flo-legal, .flo-legal-canvas) *,
+:is(.flo-legal, .flo-legal-canvas) *::before,
+:is(.flo-legal, .flo-legal-canvas) *::after {
+	box-sizing: border-box;
+}
+
+/* Kolumna 678 px na środku; na wąskim ekranie padding boczny. */
+.flo-legal .flo-legal__inner {
+	display: flex;
+	flex-direction: column;
+	max-width: calc(var(--flo-legal-col) + 2 * var(--flo-legal-pad));
+	margin-inline: auto;
+	padding: clamp(3.5rem, 13cqi, 11.4375rem) var(--flo-legal-pad) clamp(3.5rem, 6cqi, 4.5rem);
+}
+
+/* Treść jako elementy flex `__inner`: `order` etykiety (-3), daty (-2)
+   i H1 (-1) daje kolejność z PSB (opis u góry). */
+.flo-legal .flo-legal__body {
+	display: contents;
+}
+
+/* Kanwa post-only: kolumna jak front. */
+body.flo-legal-canvas {
+	background: var(--wp--preset--color--white);
+}
+
+.flo-legal-canvas .editor-visual-editor__post-title-wrapper,
+.flo-legal-canvas > .is-root-container {
+	max-width: calc(var(--flo-legal-col) + 2 * var(--flo-legal-pad));
+	margin-inline: auto;
+	padding-inline: var(--flo-legal-pad);
+}
+
+.flo-legal-canvas .editor-visual-editor__post-title-wrapper {
+	margin-block: 0;
+	padding-top: clamp(3.5rem, 13cqi, 11.4375rem);
+}
+
+.flo-legal-canvas > .is-root-container {
+	padding-bottom: clamp(3.5rem, 6cqi, 4.5rem);
+}
+
+/* Etykieta: Space Mono 12,8 px, wielkie litery, czarna (PSB „SHIPPING &
+   RETURNS”, nakładka koloru #000). */
+.flo-legal .flo-legal__label {
+	margin: 0 0 clamp(2rem, 3.55cqi, 3.1875rem);
+	font-family: var(--wp--preset--font-family--mono);
+	font-size: 0.8rem;
+	font-weight: 400;
+	line-height: 1.2;
+	letter-spacing: 0;
+	text-transform: uppercase;
+	color: var(--wp--preset--color--pure-black);
+	order: -3;
+}
+
+/* H1: 31,7/38 px, regular (PSB). */
+:is(.flo-legal__title, .flo-legal-canvas h1.wp-block-post-title) {
+	margin: 0 0 1.4375rem;
+	font-family: var(--wp--preset--font-family--suisse);
+	font-size: 1.98125rem;
+	font-weight: 400;
+	line-height: 1.2;
+	letter-spacing: 0;
+	color: var(--flo-legal-ink);
+	overflow-wrap: break-word;
+	order: -1;
+}
+
+/* Treść: odstęp między blokami = pusty wiersz (PSB). */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) > * {
+	margin-block: 0;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) > * + * {
+	margin-top: var(--flo-legal-gap);
+}
+
+/* p, li: 16/19 (PSB). */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) :is(p, li) {
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: var(--flo-legal-lh);
+	color: var(--flo-legal-ink);
+	overflow-wrap: break-word;
+	text-wrap: pretty; /* PSB: bez sierot w ostatnim wierszu */
+}
+
+/* Pogrubienia: medium, ten sam kolor (PSB: adres zwrotów). */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) strong {
+	font-weight: 500;
+	color: inherit;
+}
+
+/* H2: 23,4/28,1 px, regular (PSB „1. Delivery Locations”). */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) > h2 {
+	margin-top: clamp(2.25rem, 3.2cqi, 2.8125rem);
+	margin-bottom: 1.0625rem;
+	font-size: 1.4625rem;
+	font-weight: 400;
+	line-height: 1.2;
+	letter-spacing: 0;
+	color: var(--flo-legal-ink);
+	overflow-wrap: break-word;
+}
+
+/* H3 (brak w PSB; inne strony prawne): 18 px. */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) > h3 {
+	margin-top: 2rem;
+	margin-bottom: 0.75rem;
+	font-size: 1.125rem;
+	font-weight: 500;
+	line-height: 1.24;
+	color: var(--flo-legal-ink);
+	overflow-wrap: break-word;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) > :is(h2, h3) + * {
+	margin-top: 0;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) > :is(h2, h3):first-child {
+	margin-top: 0;
+}
+
+/* Listy (brak w PSB). */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) :is(ul, ol) {
+	padding-inline-start: 1.25em;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) li + li {
+	margin-top: 0.5em;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) li::marker {
+	color: var(--wp--preset--color--gray-7a);
+}
+
+/* Linki w treści: kolor tekstu, podkreślone (WCAG 1.4.1); hover z jawnym
+   kolorem (R-BLD-035). */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) a {
+	color: inherit;
+	text-decoration: underline 1px;
+	text-underline-offset: 0.2em;
+	-webkit-tap-highlight-color: transparent;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) a:focus-visible {
+	outline: 2px solid var(--wp--preset--color--dark);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+@media (hover: hover) {
+
+	:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) a:hover {
+		color: var(--wp--preset--color--dark);
+		text-decoration-color: transparent;
+	}
+}
+
+/* Styl „Legal: date” = linia „Effective Date: …” z PSB (16/19, jak akapit).
+   Selektor `.editor-styles-wrapper`: kanwa post-only; na froncie go nie ma. */
+.editor-styles-wrapper p.is-style-flo-legal-meta,
+.flo-legal .flo-legal__body p.is-style-flo-legal-meta {
+	margin: 0 0 clamp(2.25rem, 4.25cqi, 3.8125rem);
+	font-size: 1rem;
+	line-height: var(--flo-legal-lh);
+	color: var(--flo-legal-ink);
+}
+
+/* Data (pierwszy akapit treści) idzie nad H1; element po niej w DOM
+   (pierwszy pod H1) bez marginesu, odstęp daje margin-bottom H1. */
+.flo-legal .flo-legal__body > p.is-style-flo-legal-meta:first-child {
+	order: -2;
+}
+
+.flo-legal .flo-legal__body > p.is-style-flo-legal-meta:first-child + * {
+	margin-top: 0;
+}
+
+/* Styl „Legal: placeholder notice” (noindex, inc/legal.php): ramka 1 px,
+   tekst 14 px. Brak w PSB; na Shipping & Returns stoi na końcu treści. */
+.editor-styles-wrapper p.is-style-flo-legal-notice,
+.flo-legal .flo-legal__body p.is-style-flo-legal-notice {
+	margin-block: 1.5rem 1rem;
+	padding: 1rem 1.25rem;
+	border: 1px solid var(--flo-legal-rule);
+	border-radius: 1rem;
+	font-size: 0.875rem;
+	line-height: 1.32;
+	letter-spacing: 0.01em;
+}
+
+.flo-legal .flo-legal__body > p.is-style-flo-legal-notice:last-child {
+	margin-block: 3rem 0;
+}
+
+/* Tabela (Cookie Policy, brak w PSB): bez min-width, łamanie w komórkach;
+   overflow-x z core zostaje tylko jako bezpiecznik. */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) .wp-block-table {
+	margin-block: 1.5rem;
+	max-width: 100%;
+}
+
+:is(.flo-legal, .flo-legal-canvas) .wp-block-table table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+/* Reset core (table/style.css: border 1px, padding .5em), (0,2,1). */
+:is(.flo-legal, .flo-legal-canvas) .wp-block-table :is(td, th) {
+	padding: 0.75rem clamp(0.5rem, 2.5cqi, 1rem) 0.75rem 0;
+	border: 0;
+	border-bottom: 1px solid var(--flo-legal-rule);
+	font-size: 0.875rem;
+	line-height: 1.32;
+	letter-spacing: 0.01em;
+	text-align: left;
+	vertical-align: top;
+	hyphens: auto;
+	overflow-wrap: anywhere;
+}
+
+/* th = etykieta (Space Mono, wielkie litery). */
+:is(.flo-legal, .flo-legal-canvas) .wp-block-table th {
+	font-family: var(--wp--preset--font-family--mono);
+	font-size: 0.75rem;
+	font-weight: 400;
+	line-height: 1.33;
+	letter-spacing: normal;
+	text-transform: uppercase;
+	color: var(--flo-legal-ink);
+}
+
+/* Reset core: thead border 3px -> 1px. */
+:is(.flo-legal, .flo-legal-canvas) .wp-block-table thead {
+	border-bottom: 1px solid var(--flo-legal-rule);
+}
+
+/* Reset core/theme.css: figcaption #555 / 13px / center. */
+:is(.flo-legal, .flo-legal-canvas) .wp-block-table figcaption {
+	margin-top: 0.75rem;
+	font-size: 0.75rem;
+	text-align: left;
+	color: var(--flo-legal-ink);
+}
+
+/* Przyciski w treści (core/buttons): ciemna pigułka, min. 44 px. Bez URL
+   core/button daje <a> bez href (nie link, nie cel fokusu) — wyszarzony. */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) .wp-block-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	margin-block: 1.5rem;
+}
+
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) .wp-block-button__link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	max-width: 100%;
+	min-height: 2.75rem;
+	padding: 0.5rem 1.5rem;
+	border: 0;
+	border-radius: 999px;
+	background: var(--wp--preset--color--dark);
+	color: var(--wp--preset--color--white);
+	font-family: inherit;
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1;
+	text-decoration: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.flo-legal__body .wp-block-button__link:not([href]) {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+@media (hover: hover) {
+
+	:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) .wp-block-button__link[href]:hover {
+		background: var(--wp--preset--color--gray-3f);
+		color: var(--wp--preset--color--white);
+	}
+}
+
+/* Contact: e-mail sklepu jako główna treść strony (AC 17.11: „jeden
+   klikalny e-mail”, bez formularza). Rozmiar H2 z PSB (24 px). CZEKA NA
+   KLIENTA: adres; do tego czasu `[shop e-mail]` bez linku. */
+:is(.flo-legal__body, .flo-legal-canvas > .is-root-container) p.flo-contact-email {
+	font-size: 1.5rem;
+	line-height: 1.2;
+	overflow-wrap: anywhere;
+}
+
+/* Jasny pasek nawigacji na stronach prawnych (PSB Kamili
+ * „shipping and returns_szablon”, 19.11): biały pasek, czarne logo,
+ * pigułka menu szara (#7a7d7d na bieli = rgb(71 75 75 / 72%)) z białym
+ * tekstem, SHOP ↗ jasny jak na Home. Panel menu mobilnego zostaje ciemny.
+ * Fokus czarny, bo biały zniknąłby na bieli. */
+body.page-template-legal .nvb {
+	background: var(--wp--preset--color--white);
+	color: var(--wp--preset--color--pure-black);
+}
+
+body.page-template-legal .nvb__nav[data-state="open"] {
+	color: var(--wp--preset--color--white);
+}
+
+@media (width >= 56.25em), (width >= 1200px) {
+
+	body.page-template-legal .nvb__nav,
+	body.page-template-legal .nvb__nav[data-state] {
+		background: rgb(71 75 75 / 72%);
+		color: var(--wp--preset--color--white);
+	}
+}
+
+body.page-template-legal .nvb__logo:focus-visible,
+body.page-template-legal .nvb__burger:focus-visible {
+	outline-color: var(--wp--preset--color--pure-black);
+}

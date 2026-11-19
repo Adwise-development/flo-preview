@@ -1,0 +1,16 @@
+/* Fonty Flo — 1:1 z page.css:4–5. Ścieżki względne (R-BLD-052),
+   font-display: swap (Z-06). Suisse Intl i Marund: brak plików (rejestr
+   pytań do klientki); po dostarczeniu dopisać @font-face — stosy w
+   theme.json już je zawierają. Inter Tight 600 zastępuje Marund. */
+@font-face {
+	font-family: "Space Mono";
+	src: url(../fonts/space-mono-regular.woff2) format("woff2");
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Inter Tight";
+	font-weight: 600;
+	src: url(../fonts/inter-tight-600.woff2) format("woff2");
+	font-display: swap;
+}
